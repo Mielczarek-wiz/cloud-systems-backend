@@ -1,4 +1,5 @@
 import { CovidStats, PrismaClient } from "@prisma/client";
+import { Data } from "./types";
 
 const prisma = new PrismaClient();
 
@@ -19,5 +20,28 @@ export async function getAll() {
   const allCovid: CovidStats[] = await prisma.covidStats.findMany();
   disconnect();
   return allCovid;
+}
 
+export async function saveRecord(record: Data) {
+  await prisma.$connect();
+  try {
+    const upsertedRegion = await prisma.wHORegion.upsert({
+      where: { region: record.whoRegion.create.region },
+      update: {},
+      create: record.whoRegion.create,
+    });
+
+    const createRecord = await prisma.covidStats.create({
+      data: {
+        ...record,
+        whoRegion: {
+          connect: { id: upsertedRegion.id },
+        },
+      },
+    });
+  } catch (error) {
+    throw error;
+  } finally {
+    disconnect();
+  }
 }
