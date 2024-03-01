@@ -14,9 +14,10 @@ async function disconnect() {
   }
 }
 
-export async function main() {
+export async function getAll() {
   await prisma.$connect();
   const allCovid: CovidStats[] = await prisma.covidStats.findMany();
-  console.log(allCovid);
   disconnect();
+  return allCovid;
+
 }

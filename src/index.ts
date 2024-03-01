@@ -2,7 +2,7 @@ import express, { Express, Request, Response } from "express";
 import dotenv from "dotenv";
 import bodyParser from "body-parser";
 import { parseFile } from "fast-csv";
-import { main } from "./prismaQueries";
+import { getAll } from "./prismaQueries";
 
 dotenv.config();
 
@@ -19,8 +19,9 @@ app.get("/", (req: Request, res: Response) => {
 app.post("/import", (req: Request, res: Response) => {});
 
 app.listen(port, () => {
-  parseFile("./country_wise_latest.csv")
-    .on("error", (error) => console.error(error))
-    .on("data", (row) => console.log(row))
-    .on("end", (rowCount: number) => console.log(`Parsed ${rowCount} rows`));
+  getAll().then((res) => console.log(res));
+  // parseFile("./country_wise_latest.csv")
+  //   .on("error", (error) => console.error(error))
+  //   .on("data", (row) => console.log(row))
+  //   .on("end", (rowCount: number) => console.log(`Parsed ${rowCount} rows`));
 });
