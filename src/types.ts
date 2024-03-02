@@ -9,8 +9,6 @@ export type Data = {
   newRecovered: number;
   confirmedLastWeek: number;
   whoRegion: {
-    create: {
-      region: string;
-    };
+    region: string;
   };
 };

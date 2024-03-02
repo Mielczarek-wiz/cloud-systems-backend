@@ -27,9 +27,7 @@ const castToData = (row: Row): Data => {
     newRecovered: Number(row.newRecovered),
     confirmedLastWeek: Number(row.confirmedLastWeek),
     whoRegion: {
-      create: {
-        region: String(row.whoRegion),
-      },
+      region: String(row.whoRegion),
     },
   };
   return data;
@@ -41,8 +39,8 @@ const parseRecord = (row: Row) => {
     .then(() => {
       console.log("Record saved successfully!");
     })
-    .catch((error) => {
-      console.error("Error saving record:", error);
+    .catch(() => {
+      console.error("Error saving record:", data);
     });
 };
 

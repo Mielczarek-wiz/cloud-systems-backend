@@ -26,13 +26,15 @@ export async function saveRecord(record: Data) {
   await prisma.$connect();
   try {
     const upsertedRegion = await prisma.wHORegion.upsert({
-      where: { region: record.whoRegion.create.region },
+      where: { region: record.whoRegion.region },
       update: {},
-      create: record.whoRegion.create,
+      create: record.whoRegion,
     });
 
-    const createRecord = await prisma.covidStats.create({
-      data: {
+    const createRecord = await prisma.covidStats.upsert({
+      where: { country: record.country },
+      update: {},
+      create: {
         ...record,
         whoRegion: {
           connect: { id: upsertedRegion.id },
