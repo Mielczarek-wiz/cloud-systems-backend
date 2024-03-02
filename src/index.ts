@@ -13,6 +13,12 @@ const prisma = new PrismaClient();
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', 'http://localhost:3000');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
+  res.header('Access-Control-Allow-Headers', 'Content-Type');
+  next();
+});
 
 app.get("/", (req: Request, res: Response) => {
   res.send("Express + TypeScript Server");
@@ -36,17 +42,17 @@ app.get("/stats", async (req: Request, res: Response) => {
         case when cs.confirmed != 0
           then round(cs.deaths::numeric / cs.confirmed * 100, 2)
           else 0
-        end as "Deaths / 100 Cases",
+        end as "deathsPerCases",
         case when cs.confirmed != 0
           then round(cs.recovered::numeric / cs.confirmed * 100, 2)
           else 0	
-        end as "Recovered / 100 Cases",
+        end as "recoveredPerCases",
         case when cs.recovered != 0
           then round(cs.deaths::numeric / cs.recovered * 100, 2) 
           else 0
-        end as "Deaths / 100 Recovered",
-        cs.confirmed - cs."confirmedLastWeek" as "1 week change",
-        ROUND((cs.confirmed - cs."confirmedLastWeek")/cs."confirmedLastWeek"::numeric * 100, 2) as "1 week % increase"
+        end as "deathsPerRecovered",
+        cs.confirmed - cs."confirmedLastWeek" as "weekChange",
+        ROUND((cs.confirmed - cs."confirmedLastWeek")/cs."confirmedLastWeek"::numeric * 100, 2) as "weekPercentageIncrease"
         from "CovidStats" cs
         join "WHORegion" who
         on cs."whoId" = who.id
