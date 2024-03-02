@@ -12,3 +12,13 @@ export type Data = {
     region: string;
   };
 };
+
+export type Stats = {
+  id: number;
+  country: string;
+  weekPercentageIncrease: string;
+  weekChange: string;
+  deathsPerCases: string;
+  deathsPerRecovered: string;
+  recoveredPerCases: string;
+};
