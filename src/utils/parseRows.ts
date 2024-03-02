@@ -18,14 +18,14 @@ type Row = {
 const castToData = (row: Row): Data => {
   const data: Data = {
     country: String(row.country),
-    confirmed: Number(row.confirmed),
-    deaths: Number(row.deaths),
-    recovered: Number(row.recovered),
-    active: Number(row.active),
-    newCases: Number(row.newCases),
-    newDeaths: Number(row.newDeaths),
-    newRecovered: Number(row.newRecovered),
-    confirmedLastWeek: Number(row.confirmedLastWeek),
+    confirmed: BigInt(row.confirmed),
+    deaths: BigInt(row.deaths),
+    recovered: BigInt(row.recovered),
+    active: BigInt(row.active),
+    newCases: BigInt(row.newCases),
+    newDeaths: BigInt(row.newDeaths),
+    newRecovered: BigInt(row.newRecovered),
+    confirmedLastWeek: BigInt(row.confirmedLastWeek),
     whoRegion: {
       region: String(row.whoRegion),
     },

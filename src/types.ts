@@ -1,13 +1,13 @@
 export type Data = {
   country: string;
-  confirmed: number;
-  deaths: number;
-  recovered: number;
-  active: number;
-  newCases: number;
-  newDeaths: number;
-  newRecovered: number;
-  confirmedLastWeek: number;
+  confirmed: bigint;
+  deaths: bigint;
+  recovered: bigint;
+  active: bigint;
+  newCases: bigint;
+  newDeaths: bigint;
+  newRecovered: bigint;
+  confirmedLastWeek: bigint;
   whoRegion: {
     region: string;
   };
