@@ -45,7 +45,7 @@ export async function getAll() {
 
 export async function getStats() {
   await prisma.$connect();
-  const allCovid: CovidStats[] = await prisma.covidStats.findMany();
+  const allCovid: CovidStats[] = await prisma.covidStats.findMany({orderBy: { id: "asc" }});
   disconnect();
   const res: Stats[] = allCovid.map((row) => {
     return {

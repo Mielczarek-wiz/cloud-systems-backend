@@ -36,8 +36,10 @@ app.get("/object", (req: Request, res: Response) => {
 });
 
 app.get("/stats", async (req: Request, res: Response) => {
-  const json = await getStats()
-  res.send(json) 
+  getStats()
+    .then((data) => res.send(data))
+    .catch((e: Error) => console.error(e))
+    .finally(() => console.log("Data sent2"))
 });
 
 app.listen(port, () => {
