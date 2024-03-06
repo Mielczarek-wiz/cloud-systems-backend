@@ -43,21 +43,62 @@ export async function getAll() {
   return allCovid;
 }
 
+export async function getOneByName(countryName: string) {
+  await prisma.$connect();
+  // @ts-ignore
+  const countryData: Data = await prisma.covidStats.findUnique({
+    where: {
+      country: countryName,
+    },
+  });
+  disconnect();
+  return countryData;
+}
+
+export async function getOneById(countryId: number) {
+  await prisma.$connect();
+  // @ts-ignore
+  const countryData: Data = await prisma.covidStats.findUnique({
+    where: {
+      id: countryId,
+    },
+  });
+  disconnect();
+  return countryData;
+}
+
 export async function getStats() {
   await prisma.$connect();
-  const allCovid: CovidStats[] = await prisma.covidStats.findMany({orderBy: { id: "asc" }});
+  const allCovid: CovidStats[] = await prisma.covidStats.findMany({
+    orderBy: { id: "asc" },
+  });
   disconnect();
   const res: Stats[] = allCovid.map((row) => {
     return {
       id: Number(row.id),
       country: row.country,
-      deathsPerCases: Number(row.confirmed) !== 0 ? (Number(row.deaths) / Number(row.confirmed) * 100).toFixed(2) : String(0),
-      recoveredPerCases: Number(row.confirmed) !== 0 ? (Number(row.recovered) / Number(row.confirmed) * 100).toFixed(2) : String(0),
-      deathsPerRecovered: Number(row.recovered) !== 0 ? (Number(row.deaths) / Number(row.recovered) * 100).toFixed(2) : String(0),
-      weekChange: String(row.confirmed - row.confirmedLastWeek), 
-      weekPercentageIncrease: String(((Number(row.confirmed) - Number(row.confirmedLastWeek)) / Number(row.confirmedLastWeek) * 100).toFixed(2))
-    }
-  })
+      deathsPerCases:
+        Number(row.confirmed) !== 0
+          ? ((Number(row.deaths) / Number(row.confirmed)) * 100).toFixed(2)
+          : String(0),
+      recoveredPerCases:
+        Number(row.confirmed) !== 0
+          ? ((Number(row.recovered) / Number(row.confirmed)) * 100).toFixed(2)
+          : String(0),
+      deathsPerRecovered:
+        Number(row.recovered) !== 0
+          ? ((Number(row.deaths) / Number(row.recovered)) * 100).toFixed(2)
+          : String(0),
+      weekChange: String(row.confirmed - row.confirmedLastWeek),
+      weekPercentageIncrease: String(
+        (
+          ((Number(row.confirmed) - Number(row.confirmedLastWeek)) /
+            Number(row.confirmedLastWeek)) *
+          100
+        ).toFixed(2)
+      ),
+    };
+  });
   return res;
 }
 
