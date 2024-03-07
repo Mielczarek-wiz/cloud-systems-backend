@@ -8,6 +8,7 @@ import {
   getOneById,
   saveRecord,
   updateRecord,
+  getAllInRegion,
 } from "./prismaQueries";
 import { parseRows } from "./utils/parseRows";
 
@@ -67,6 +68,23 @@ app.get("/object", (req: Request, res: Response) => {
     })
     .finally(() => {
       console.log("Data sent");
+    });
+});
+
+app.get("/region/:regionID", (req: Request, res: Response) => {
+  getAllInRegion(Number(req.params.regionID))
+    .then((data) => {
+      res.send(
+        JSON.stringify(data, (_, v) =>
+          typeof v === "bigint" ? v.toString() : v
+        )
+      );
+    })
+    .catch((e: Error) => {
+      console.error(e);
+    })
+    .finally(() => {
+      console.log("getAllInRegion", req.params.regionID);
     });
 });
 
