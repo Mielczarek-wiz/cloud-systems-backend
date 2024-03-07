@@ -7,6 +7,7 @@ import {
   getOneByName,
   getOneById,
   saveRecord,
+  updateRecord,
 } from "./prismaQueries";
 import { parseRows } from "./utils/parseRows";
 
@@ -26,6 +27,20 @@ app.use((req, res, next) => {
 
 app.post("/object", (req: Request, res: Response) => {
   saveRecord(req.body)
+    .then((data) => {
+      res.status(200).send("ok");
+    })
+    .catch((e: Error) => {
+      console.error(e);
+      res.status(500);
+    })
+    .finally(() => {
+      console.log("saveRecord app.post(/object)");
+    });
+});
+
+app.put("/object/:countryId", (req: Request, res: Response) => {
+  updateRecord(Number(req.params.countryId), req.body)
     .then((data) => {
       res.status(200).send("ok");
     })

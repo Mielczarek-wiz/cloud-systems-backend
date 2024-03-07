@@ -16,6 +16,7 @@ async function disconnect() {
 }
 
 export async function getAll() {
+  console.log("getAll");
   await prisma.$connect();
   const allCovid: Data[] = await prisma.covidStats.findMany({
     orderBy: {
@@ -115,6 +116,33 @@ export async function saveRecord(record: Data) {
       where: { country: record.country },
       update: {},
       create: {
+        ...record,
+        whoRegion: {
+          connect: { id: upsertedRegion.id },
+        },
+      },
+    });
+  } catch (error) {
+    throw error;
+  } finally {
+    disconnect();
+  }
+}
+
+export async function updateRecord(record_id: number, record: Data) {
+  await prisma.$connect();
+  try {
+    const upsertedRegion = await prisma.wHORegion.upsert({
+      where: { region: record.whoRegion.region },
+      update: {},
+      create: record.whoRegion,
+    });
+
+    const updateUser = await prisma.covidStats.update({
+      where: {
+        id: record_id,
+      },
+      data: {
         ...record,
         whoRegion: {
           connect: { id: upsertedRegion.id },
