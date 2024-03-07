@@ -1,7 +1,13 @@
 import express, { Express, Request, Response } from "express";
 import dotenv from "dotenv";
 import bodyParser from "body-parser";
-import { getAll, getStats, getOneByName, getOneById } from "./prismaQueries";
+import {
+  getAll,
+  getStats,
+  getOneByName,
+  getOneById,
+  saveRecord,
+} from "./prismaQueries";
 import { parseRows } from "./utils/parseRows";
 
 dotenv.config();
@@ -16,6 +22,20 @@ app.use((req, res, next) => {
   res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
   res.header("Access-Control-Allow-Headers", "Content-Type");
   next();
+});
+
+app.post("/object", (req: Request, res: Response) => {
+  saveRecord(req.body)
+    .then((data) => {
+      res.status(200).send("ok");
+    })
+    .catch((e: Error) => {
+      console.error(e);
+      res.status(500);
+    })
+    .finally(() => {
+      console.log("saveRecord app.post(/object)");
+    });
 });
 
 app.get("/object", (req: Request, res: Response) => {
