@@ -22,3 +22,20 @@ export type Stats = {
   deathsPerRecovered: string;
   recoveredPerCases: string;
 };
+export type RequestData = {
+  country: string;
+  confirmed: bigint;
+  deaths: bigint;
+  recovered: bigint;
+  active: bigint;
+  newCases: bigint;
+  newDeaths: bigint;
+  newRecovered: bigint;
+  confirmedLastWeek: bigint;
+  region: string;
+};
+
+export type Regions = {
+  id: number;
+  region: string;
+};

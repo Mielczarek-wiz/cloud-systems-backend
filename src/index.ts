@@ -9,6 +9,7 @@ import {
   saveRecord,
   updateRecord,
   getAllInRegion,
+  getRegions,
 } from "./prismaQueries";
 import { parseRows } from "./utils/parseRows";
 
@@ -135,6 +136,14 @@ app.get("/stats", async (req: Request, res: Response) => {
     .then((data) => res.send(data))
     .catch((e: Error) => console.error(e))
     .finally(() => console.log("Data sent2"));
+});
+
+app.get("/region", async (req: Request, res: Response) => {
+  getRegions()
+    .then((data) => {
+      res.send(data);
+    })
+    .catch((e: Error) => console.error(e));
 });
 
 app.listen(port, () => {

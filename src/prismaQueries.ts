@@ -1,7 +1,24 @@
 import { CovidStats, PrismaClient } from "@prisma/client";
-import { Data, Stats } from "./types";
+import { Data, Regions, RequestData, Stats } from "./types";
 
 const prisma = new PrismaClient();
+const select = {
+  id: true,
+  country: true,
+  confirmed: true,
+  deaths: true,
+  recovered: true,
+  active: true,
+  newCases: true,
+  newDeaths: true,
+  newRecovered: true,
+  confirmedLastWeek: true,
+  whoRegion: {
+    select: {
+      region: true,
+    },
+  },
+};
 
 async function disconnect() {
   try {
@@ -22,23 +39,7 @@ export async function getAll() {
     orderBy: {
       id: "asc",
     },
-    select: {
-      id: true,
-      country: true,
-      confirmed: true,
-      deaths: true,
-      recovered: true,
-      active: true,
-      newCases: true,
-      newDeaths: true,
-      newRecovered: true,
-      confirmedLastWeek: true,
-      whoRegion: {
-        select: {
-          region: true,
-        },
-      },
-    },
+    select: select,
   });
   disconnect();
   return allCovid;
@@ -54,23 +55,7 @@ export async function getAllInRegion(region_id?: number) {
     orderBy: {
       id: "asc",
     },
-    select: {
-      id: true,
-      country: true,
-      confirmed: true,
-      deaths: true,
-      recovered: true,
-      active: true,
-      newCases: true,
-      newDeaths: true,
-      newRecovered: true,
-      confirmedLastWeek: true,
-      whoRegion: {
-        select: {
-          region: true,
-        },
-      },
-    },
+    select: select,
   });
   disconnect();
   return allCovid;
@@ -78,11 +63,12 @@ export async function getAllInRegion(region_id?: number) {
 
 export async function getOneByName(countryName: string) {
   await prisma.$connect();
-  // @ts-ignore
-  const countryData: Data = await prisma.covidStats.findUnique({
+
+  const countryData: Data | null = await prisma.covidStats.findUnique({
     where: {
       country: countryName,
     },
+    select: select,
   });
   disconnect();
   return countryData;
@@ -90,11 +76,11 @@ export async function getOneByName(countryName: string) {
 
 export async function getOneById(countryId: number) {
   await prisma.$connect();
-  // @ts-ignore
-  const countryData: Data = await prisma.covidStats.findUnique({
+  const countryData: Data | null = await prisma.covidStats.findUnique({
     where: {
       id: countryId,
     },
+    select: select,
   });
   disconnect();
   return countryData;
@@ -133,6 +119,28 @@ export async function getStats() {
     };
   });
   return res;
+}
+export async function saveObject(record: RequestData) {
+  await prisma.$connect();
+  try {
+    const region = await prisma.wHORegion.findUnique({
+      where: { region: record.region },
+    });
+    const createRecord = await prisma.covidStats.upsert({
+      where: { country: record.country },
+      update: {},
+      create: {
+        ...record,
+        whoRegion: {
+          connect: { id: region!.id },
+        },
+      },
+    });
+  } catch (error) {
+    throw error;
+  } finally {
+    disconnect();
+  }
 }
 
 export async function saveRecord(record: Data) {
@@ -186,4 +194,21 @@ export async function updateRecord(record_id: number, record: Data) {
   } finally {
     disconnect();
   }
+}
+
+export async function getRegions() {
+  await prisma.$connect();
+  const regions = await prisma.wHORegion.findMany({
+    orderBy: {
+      id: "asc",
+    },
+  });
+  const res: Regions[] = regions.map((row) => {
+    return {
+      id: Number(row.id),
+      region: row.region,
+    };
+  });
+  disconnect();
+  return res;
 }
