@@ -16,6 +16,7 @@ async function disconnect() {
 }
 
 export async function getAll() {
+  console.log("getAll");
   await prisma.$connect();
   const allCovid: Data[] = await prisma.covidStats.findMany({
     orderBy: {
@@ -43,21 +44,94 @@ export async function getAll() {
   return allCovid;
 }
 
+export async function getAllInRegion(region_id?: number) {
+  console.log("getAllInRegion");
+  await prisma.$connect();
+  const allCovid: Data[] = await prisma.covidStats.findMany({
+    where: {
+      whoId: region_id,
+    },
+    orderBy: {
+      id: "asc",
+    },
+    select: {
+      id: true,
+      country: true,
+      confirmed: true,
+      deaths: true,
+      recovered: true,
+      active: true,
+      newCases: true,
+      newDeaths: true,
+      newRecovered: true,
+      confirmedLastWeek: true,
+      whoRegion: {
+        select: {
+          region: true,
+        },
+      },
+    },
+  });
+  disconnect();
+  return allCovid;
+}
+
+export async function getOneByName(countryName: string) {
+  await prisma.$connect();
+  // @ts-ignore
+  const countryData: Data = await prisma.covidStats.findUnique({
+    where: {
+      country: countryName,
+    },
+  });
+  disconnect();
+  return countryData;
+}
+
+export async function getOneById(countryId: number) {
+  await prisma.$connect();
+  // @ts-ignore
+  const countryData: Data = await prisma.covidStats.findUnique({
+    where: {
+      id: countryId,
+    },
+  });
+  disconnect();
+  return countryData;
+}
+
 export async function getStats() {
   await prisma.$connect();
-  const allCovid: CovidStats[] = await prisma.covidStats.findMany({orderBy: { id: "asc" }});
+  const allCovid: CovidStats[] = await prisma.covidStats.findMany({
+    orderBy: { id: "asc" },
+  });
   disconnect();
   const res: Stats[] = allCovid.map((row) => {
     return {
       id: Number(row.id),
       country: row.country,
-      deathsPerCases: Number(row.confirmed) !== 0 ? (Number(row.deaths) / Number(row.confirmed) * 100).toFixed(2) : String(0),
-      recoveredPerCases: Number(row.confirmed) !== 0 ? (Number(row.recovered) / Number(row.confirmed) * 100).toFixed(2) : String(0),
-      deathsPerRecovered: Number(row.recovered) !== 0 ? (Number(row.deaths) / Number(row.recovered) * 100).toFixed(2) : String(0),
-      weekChange: String(row.confirmed - row.confirmedLastWeek), 
-      weekPercentageIncrease: String(((Number(row.confirmed) - Number(row.confirmedLastWeek)) / Number(row.confirmedLastWeek) * 100).toFixed(2))
-    }
-  })
+      deathsPerCases:
+        Number(row.confirmed) !== 0
+          ? ((Number(row.deaths) / Number(row.confirmed)) * 100).toFixed(2)
+          : String(0),
+      recoveredPerCases:
+        Number(row.confirmed) !== 0
+          ? ((Number(row.recovered) / Number(row.confirmed)) * 100).toFixed(2)
+          : String(0),
+      deathsPerRecovered:
+        Number(row.recovered) !== 0
+          ? ((Number(row.deaths) / Number(row.recovered)) * 100).toFixed(2)
+          : String(0),
+      weekChange: String(row.confirmed - row.confirmedLastWeek),
+      weekPercentageIncrease: String(
+        (
+          ((Number(row.confirmed) - Number(row.confirmedLastWeek)) /
+            Number(row.confirmedLastWeek)) *
+          100
+        ).toFixed(2)
+      ),
+    };
+  });
   return res;
 }
 
@@ -74,6 +148,33 @@ export async function saveRecord(record: Data) {
       where: { country: record.country },
       update: {},
       create: {
+        ...record,
+        whoRegion: {
+          connect: { id: upsertedRegion.id },
+        },
+      },
+    });
+  } catch (error) {
+    throw error;
+  } finally {
+    disconnect();
+  }
+}
+
+export async function updateRecord(record_id: number, record: Data) {
+  await prisma.$connect();
+  try {
+    const upsertedRegion = await prisma.wHORegion.upsert({
+      where: { region: record.whoRegion.region },
+      update: {},
+      create: record.whoRegion,
+    });
+
+    const updateUser = await prisma.covidStats.update({
+      where: {
+        id: record_id,
+      },
+      data: {
         ...record,
         whoRegion: {
           connect: { id: upsertedRegion.id },
