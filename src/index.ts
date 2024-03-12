@@ -6,11 +6,10 @@ import {
   getStats,
   getOneByName,
   getOneById,
-  saveRecord,
-  updateRecord,
   getAllInRegion,
   getRegions,
   saveObject,
+  count,
 } from "./prismaQueries";
 import { parseRows } from "./utils/parseRows";
 
@@ -36,9 +35,6 @@ app.post("/object", (req: Request, res: Response) => {
     .catch((e: Error) => {
       console.error(e);
       res.status(500);
-    })
-    .finally(() => {
-      console.log("saveRecord app.post(/object)");
     });
 });
 
@@ -50,9 +46,6 @@ app.put("/object", (req: Request, res: Response) => {
     .catch((e: Error) => {
       console.error(e);
       res.status(500);
-    })
-    .finally(() => {
-      console.log("saveRecord app.post(/object)");
     });
 });
 
@@ -67,9 +60,6 @@ app.get("/object", (req: Request, res: Response) => {
     })
     .catch((e: Error) => {
       console.error(e);
-    })
-    .finally(() => {
-      console.log("Data sent");
     });
 });
 
@@ -84,9 +74,6 @@ app.get("/region/:regionID", (req: Request, res: Response) => {
     })
     .catch((e: Error) => {
       console.error(e);
-    })
-    .finally(() => {
-      console.log("getAllInRegion", req.params.regionID);
     });
 });
 
@@ -105,9 +92,6 @@ app.get("/object/name/:countryName", (req: Request, res: Response) => {
     })
     .catch((e: Error) => {
       console.error(e);
-    })
-    .finally(() => {
-      console.log("Data sent (getOneByName, /object/:countryName)");
     });
 });
 
@@ -126,17 +110,13 @@ app.get("/object/:countryId", (req: Request, res: Response) => {
     })
     .catch((e: Error) => {
       console.error(e);
-    })
-    .finally(() => {
-      console.log("Data sent (getOneById, /object/:countryId)");
     });
 });
 
 app.get("/stats", async (req: Request, res: Response) => {
   getStats()
     .then((data) => res.send(data))
-    .catch((e: Error) => console.error(e))
-    .finally(() => console.log("Data sent2"));
+    .catch((e: Error) => console.error(e));
 });
 
 app.get("/region", async (req: Request, res: Response) => {
@@ -148,5 +128,9 @@ app.get("/region", async (req: Request, res: Response) => {
 });
 
 app.listen(port, () => {
-  parseRows();
+  count().then((data) => {
+    if (data < 1) {
+      parseRows();
+    }
+  });
 });
