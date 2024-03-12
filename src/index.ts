@@ -10,6 +10,7 @@ import {
   updateRecord,
   getAllInRegion,
   getRegions,
+  saveObject,
 } from "./prismaQueries";
 import { parseRows } from "./utils/parseRows";
 
@@ -28,7 +29,7 @@ app.use((req, res, next) => {
 });
 
 app.post("/object", (req: Request, res: Response) => {
-  saveRecord(req.body)
+  saveObject(req.body)
     .then((data) => {
       res.status(200).send("ok");
     })
@@ -41,8 +42,8 @@ app.post("/object", (req: Request, res: Response) => {
     });
 });
 
-app.put("/object/:countryId", (req: Request, res: Response) => {
-  updateRecord(Number(req.params.countryId), req.body)
+app.put("/object", (req: Request, res: Response) => {
+  saveObject(req.body)
     .then((data) => {
       res.status(200).send("ok");
     })

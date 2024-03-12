@@ -82,8 +82,19 @@ export async function getOneById(countryId: number) {
     },
     select: select,
   });
+
+  const { whoRegion, ...data } = countryData!;
+  const region = await prisma.wHORegion.findUnique({
+    where: {
+      region: whoRegion.region,
+    },
+    select: {
+      id: true,
+    },
+  });
+  const response = { ...data, whoId: region?.id };
   disconnect();
-  return countryData;
+  return response;
 }
 
 export async function getStats() {
@@ -123,16 +134,19 @@ export async function getStats() {
 export async function saveObject(record: RequestData) {
   await prisma.$connect();
   try {
-    const region = await prisma.wHORegion.findUnique({
-      where: { region: record.region },
-    });
-    const createRecord = await prisma.covidStats.upsert({
-      where: { country: record.country },
-      update: {},
-      create: {
-        ...record,
+    const { id, whoId, ...recordWithoutIds } = record;
+    await prisma.covidStats.upsert({
+      where: { id: id },
+      update: {
+        ...recordWithoutIds,
         whoRegion: {
-          connect: { id: region!.id },
+          connect: { id: whoId },
+        },
+      },
+      create: {
+        ...recordWithoutIds,
+        whoRegion: {
+          connect: { id: whoId },
         },
       },
     });
@@ -152,7 +166,7 @@ export async function saveRecord(record: Data) {
       create: record.whoRegion,
     });
 
-    const createRecord = await prisma.covidStats.upsert({
+    await prisma.covidStats.upsert({
       where: { country: record.country },
       update: {},
       create: {
