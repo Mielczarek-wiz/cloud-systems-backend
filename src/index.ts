@@ -21,7 +21,10 @@ const port: number = Number(process.env.PORT) || 8080;
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "*");
+  res.header(
+    "Access-Control-Allow-Origin",
+    `${process.env.NEXT_PUBLIC_API_URL}, ${process.env.NEXT_PRIVATE_API_URL}`
+  );
   res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
   res.header("Access-Control-Allow-Headers", "Content-Type");
   next();
