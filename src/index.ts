@@ -17,14 +17,18 @@ dotenv.config();
 
 const app: Express = express();
 const port: number = Number(process.env.PORT) || 8080;
+const allowedOrigins = [
+  process.env.NEXT_PUBLIC_API_URL,
+  process.env.NEXT_PRIVATE_API_URL,
+];
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use((req, res, next) => {
-  res.header(
-    "Access-Control-Allow-Origin",
-    `${process.env.NEXT_PUBLIC_API_URL}, ${process.env.NEXT_PRIVATE_API_URL}`
-  );
+  const origin = req.headers.origin as string;
+  if (allowedOrigins.includes(origin)) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+  }
   res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
   res.header("Access-Control-Allow-Headers", "Content-Type");
   next();
